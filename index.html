@@ -246,7 +246,8 @@
         // Tắt in đậm
         data.push(0x1B, 0x45, 0x00);
 
-             // Không cấp giấy thêm
+        // Cấp giấy thử
+data.push(0x1B, 0x4A, 120);
         const CHUNK_SIZE = 182;
 
 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
