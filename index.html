@@ -246,9 +246,7 @@
         // Tắt in đậm
         data.push(0x1B, 0x45, 0x00);
 
-                // Cấp giấy thử bằng ESC d
-data.push(0x1B, 0x64, 3);
-
+             // Không cấp giấy thêm
         const CHUNK_SIZE = 182;
 
 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
