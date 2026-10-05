@@ -110,6 +110,13 @@
     <div id="chiTiet">
       Chưa có thông tin kết nối.
     </div>
+    <button
+  type="button"
+  id="btnInThu"
+  style="margin-top:16px;"
+>
+  🖨 IN THỬ
+</button>
 
   </div>
 
@@ -198,7 +205,80 @@
       }
 
     });
+    const btnInThu = document.getElementById("btnInThu");
 
+    btnInThu.addEventListener("click", async function() {
+
+      if (!characteristic) {
+        alert("❌ Chưa kết nối máy in.");
+        return;
+      }
+
+      try {
+
+        trangThai.textContent = "⏳ Đang gửi lệnh in thử...";
+
+        const data = [];
+
+        // ESC @ - khởi tạo máy in
+        data.push(0x1B, 0x40);
+
+        // Căn giữa
+        data.push(0x1B, 0x61, 0x01);
+
+        // In đậm
+        data.push(0x1B, 0x45, 0x01);
+
+        // Cỡ chữ: ngang 1x, dọc 2x
+        data.push(0x1D, 0x21, 0x01);
+
+        const text =
+          "TEST PT-210\n" +
+          "MTP-2 OK\n";
+
+        for (let i = 0; i < text.length; i++) {
+          data.push(text.charCodeAt(i));
+        }
+
+        // Trả về cỡ chữ bình thường
+        data.push(0x1D, 0x21, 0x00);
+
+        // Tắt in đậm
+        data.push(0x1B, 0x45, 0x00);
+
+        // Xuống dòng
+        data.push(0x0A);
+
+        const CHUNK_SIZE = 192;
+
+        for (let i = 0; i < data.length; i += CHUNK_SIZE) {
+
+          const chunk =
+            new Uint8Array(
+              data.slice(i, i + CHUNK_SIZE)
+            );
+
+          await characteristic.writeValueWithoutResponse(chunk);
+        }
+
+        trangThai.textContent = "✅ Đã gửi lệnh in thử";
+
+        chiTiet.textContent =
+          "Đã gửi: TEST PT-210 / MTP-2 OK";
+
+      } catch (error) {
+
+        console.error(error);
+
+        trangThai.textContent =
+          "❌ In thử thất bại";
+
+        chiTiet.textContent =
+          error.name + ": " + error.message;
+
+      }
+
+    });
   </script>
 
 </body>
