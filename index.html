@@ -246,8 +246,9 @@
         // Tắt in đậm
         data.push(0x1B, 0x45, 0x00);
 
-        // Xuống dòng
-        data.push(0x0A);
+                // Cấp giấy đúng chiều dài tem 30 mm
+        // 203 dpi → 30 mm ≈ 240 dots
+        data.push(0x1B, 0x4A, 240);
 
         const CHUNK_SIZE = 192;
 
