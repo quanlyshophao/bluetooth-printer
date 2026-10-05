@@ -249,17 +249,20 @@
                 // Cấp giấy thử bằng ESC d
 data.push(0x1B, 0x64, 3);
 
-        const CHUNK_SIZE = 192;
+        const CHUNK_SIZE = 182;
 
-        for (let i = 0; i < data.length; i += CHUNK_SIZE) {
+for (let i = 0; i < data.length; i += CHUNK_SIZE) {
 
-          const chunk =
-            new Uint8Array(
-              data.slice(i, i + CHUNK_SIZE)
-            );
+  const chunk =
+    new Uint8Array(
+      data.slice(i, i + CHUNK_SIZE)
+    );
 
-          await characteristic.writeValueWithoutResponse(chunk);
-        }
+  await characteristic.writeValueWithoutResponse(chunk);
+
+  // Chờ giữa các gói BLE
+  await new Promise(resolve => setTimeout(resolve, 40));
+}
 
         trangThai.textContent = "✅ Đã gửi lệnh in thử";
 
