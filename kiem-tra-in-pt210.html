@@ -49,6 +49,10 @@ NGẮT KẾT NỐI
 3. TẠO ẢNH TEM TIẾNG VIỆT
 </button>
 
+  <button id="kiemTraBitmap">
+4. KIỂM TRA BITMAP ĐEN TRẮNG
+</button>
+
 <div id="preview"
 style="display:none; margin:15px 0; border:1px solid #999; padding:10px;">
   <p>HÌNH ẢNH TEM XEM TRƯỚC:</p>
@@ -135,7 +139,134 @@ document.getElementById("status");
   log("Đã tạo ảnh tem tiếng Việt.");
 
 });
+
+document.getElementById("kiemTraBitmap")
+.addEventListener("click", function() {
+
+  const canvas =
+    document.getElementById("temCanvas");
+
+  if (
+    !canvas.width ||
+    document.getElementById("preview")
+      .style.display === "none"
+  ) {
+
+    log("Bạn cần tạo ảnh tem trước.");
+
+    return;
+
+  }
+
+  const ketQua =
+    taoBitmapDenTrang(canvas);
+
+  let soPixelDen = 0;
+
+  for (
+    let i = 0;
+    i < ketQua.data.length;
+    i++
+  ) {
+
+    let byte = ketQua.data[i];
+
+    for (let bit = 0; bit < 8; bit++) {
+
+      if (byte & (1 << bit)) {
+        soPixelDen++;
+      }
+
+    }
+
+  }
+
+  log("ĐÃ CHUYỂN BITMAP THÀNH CÔNG.");
+
+  log("Chiều rộng: " + ketQua.width + " pixel");
+
+  log("Chiều cao: " + ketQua.height + " pixel");
+
+  log("Số byte mỗi dòng: " + ketQua.bytesPerRow);
+
+  log("Tổng số byte: " + ketQua.data.length);
+
+  log("Số pixel đen: " + soPixelDen);
+
+});
   
+  function taoBitmapDenTrang(canvas) {
+
+  const ctx = canvas.getContext("2d");
+
+  const anh = ctx.getImageData(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  const duLieuAnh = anh.data;
+
+  const chieuRong = canvas.width;
+  const chieuCao = canvas.height;
+
+  const soByteMoiDong = Math.ceil(
+    chieuRong / 8
+  );
+
+  const bitmap = new Uint8Array(
+    soByteMoiDong * chieuCao
+  );
+
+  for (
+    let y = 0;
+    y < chieuCao;
+    y++
+  ) {
+
+    for (
+      let x = 0;
+      x < chieuRong;
+      x++
+    ) {
+
+      const viTriAnh =
+        (y * chieuRong + x) * 4;
+
+      const doSang =
+        (
+          duLieuAnh[viTriAnh] +
+          duLieuAnh[viTriAnh + 1] +
+          duLieuAnh[viTriAnh + 2]
+        ) / 3;
+
+      if (doSang < 160) {
+
+        const viTriByte =
+          y * soByteMoiDong +
+          Math.floor(x / 8);
+
+        const bit =
+          7 - (x % 8);
+
+        bitmap[viTriByte] |=
+          (1 << bit);
+
+      }
+
+    }
+
+  }
+
+  return {
+    width: chieuRong,
+    height: chieuCao,
+    bytesPerRow: soByteMoiDong,
+    data: bitmap
+  };
+
+}
 const printButton =
 document.getElementById("print");
 
