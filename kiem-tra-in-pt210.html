@@ -148,11 +148,22 @@ document.getElementById("print")
 
   try {
 
-    const noiDung =
+        const noiDung =
       "\x1B\x40" +
-      "\nTEST PT-210\n" +
-      "MTP-2 BLE PRINT OK\n" +
-      "--------------------\n\n\n";
+      "\nKIEM TRA TIENG VIET\n" +
+      "Cua hang Hao\n" +
+      "Quan ao - Dien thoai\n" +
+      "Gia ban: 125.000 d\n\n" +
+      "Tieng Viet co dau:\n" +
+      "ă â ê ô ơ ư đ\n" +
+      "Ă Â Ê Ô Ơ Ư Đ\n" +
+      "á à ả ã ạ\n" +
+      "ắ ằ ẳ ẵ ặ\n" +
+      "ấ ầ ẩ ẫ ậ\n" +
+      "ế ề ể ễ ệ\n" +
+      "ố ồ ổ ỗ ộ\n" +
+      "ớ ờ ở ỡ ợ\n" +
+      "ứ ừ ử ữ ự\n\n\n";
 
     const bytes =
     new TextEncoder().encode(noiDung);
