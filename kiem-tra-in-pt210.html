@@ -45,6 +45,17 @@ pre {
 NGẮT KẾT NỐI
 </button>
 
+  <button id="taoAnh">
+3. TẠO ẢNH TEM TIẾNG VIỆT
+</button>
+
+<div id="preview"
+style="display:none; margin:15px 0; border:1px solid #999; padding:10px;">
+  <p>HÌNH ẢNH TEM XEM TRƯỚC:</p>
+  <canvas id="temCanvas"
+  style="width:100%; height:auto;"></canvas>
+</div>
+
 <pre id="status">Sẵn sàng.</pre>
 
 <script>
@@ -61,6 +72,70 @@ let printCharacteristic = null;
 const statusBox =
 document.getElementById("status");
 
+  document.getElementById("taoAnh")
+.addEventListener("click", function() {
+
+  const canvas =
+  document.getElementById("temCanvas");
+
+  const ctx =
+  canvas.getContext("2d");
+
+  const noiDung = [
+    "KIỂM TRA TIẾNG VIỆT",
+    "Cửa hàng Hảo",
+    "Quần áo - Điện thoại",
+    "Giá bán: 125.000 đ",
+    "",
+    "Tiếng Việt có dấu:",
+    "ă â ê ô ơ ư đ",
+    "Ă Â Ê Ô Ơ Ư Đ",
+    "á à ả ã ạ",
+    "ắ ằ ẳ ẵ ặ",
+    "ấ ầ ẩ ẫ ậ",
+    "ế ề ể ễ ệ",
+    "ố ồ ổ ỗ ộ",
+    "ớ ờ ở ỡ ợ",
+    "ứ ừ ử ữ ự"
+  ];
+
+  const chieuCaoDong = 34;
+  const le = 12;
+
+  canvas.width = 384;
+
+  canvas.height =
+    le * 2 + noiDung.length * chieuCaoDong;
+
+  ctx.fillStyle = "#FFFFFF";
+
+  ctx.fillRect(
+    0, 0, canvas.width, canvas.height
+  );
+
+  ctx.fillStyle = "#000000";
+
+  ctx.font = "22px Arial";
+
+  ctx.textBaseline = "top";
+
+  noiDung.forEach(function(dong, index) {
+
+    ctx.fillText(
+      dong,
+      le,
+      le + index * chieuCaoDong
+    );
+
+  });
+
+  document.getElementById("preview")
+  .style.display = "block";
+
+  log("Đã tạo ảnh tem tiếng Việt.");
+
+});
+  
 const printButton =
 document.getElementById("print");
 
