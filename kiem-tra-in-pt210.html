@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thử in GOOJPRT PT-210</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 25px auto;
+  padding: 15px;
+  line-height: 1.5;
+}
+button {
+  width: 100%;
+  padding: 16px;
+  margin: 10px 0;
+  font-size: 17px;
+}
+pre {
+  white-space: pre-wrap;
+  background: #eee;
+  padding: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>KIỂM TRA IN PT-210</h2>
+
+<p>Thử gửi dữ liệu trực tiếp từ Chrome đến máy in MTP-2.</p>
+
+<button id="connect">
+1. KẾT NỐI MTP-2
+</button>
+
+<button id="print" disabled>
+2. IN THỬ MỘT DÒNG
+</button>
+
+<button id="disconnect" disabled>
+NGẮT KẾT NỐI
+</button>
+
+<pre id="status">Sẵn sàng.</pre>
+
+<script>
+
+const SERVICE_UUID =
+"000018f0-0000-1000-8000-00805f9b34fb";
+
+const CHARACTERISTIC_UUID =
+"00002af1-0000-1000-8000-00805f9b34fb";
+
+let printer = null;
+let printCharacteristic = null;
+
+const statusBox =
+document.getElementById("status");
+
+const printButton =
+document.getElementById("print");
+
+const disconnectButton =
+document.getElementById("disconnect");
+
+function log(message) {
+  statusBox.textContent += "\n" + message;
+}
+
+document.getElementById("connect")
+.addEventListener("click", async function() {
+
+  try {
+
+    statusBox.textContent =
+    "Đang tìm máy in...";
+
+    printer =
+    await navigator.bluetooth.requestDevice({
+      filters: [
+        { services: [SERVICE_UUID] }
+      ],
+      optionalServices: [SERVICE_UUID]
+    });
+
+    log("Đã chọn: " + printer.name);
+
+    printer.addEventListener(
+      "gattserverdisconnected",
+      function() {
+        printCharacteristic = null;
+        printButton.disabled = true;
+        disconnectButton.disabled = true;
+        log("Máy in đã ngắt kết nối.");
+      }
+    );
+
+    const server =
+    await printer.gatt.connect();
+
+    log("Đã kết nối GATT.");
+
+    const service =
+    await server.getPrimaryService(
+      SERVICE_UUID
+    );
+
+    printCharacteristic =
+    await service.getCharacteristic(
+      CHARACTERISTIC_UUID
+    );
+
+    log("Đã tìm thấy kênh in.");
+
+    printButton.disabled = false;
+    disconnectButton.disabled = false;
+
+    log("Sẵn sàng in thử.");
+
+  } catch(error) {
+
+    log(
+      "LỖI KẾT NỐI: " +
+      error.name + " - " + error.message
+    );
+
+  }
+
+});
+
+document.getElementById("print")
+.addEventListener("click", async function() {
+
+  if (
+    !printer ||
+    !printer.gatt.connected ||
+    !printCharacteristic
+  ) {
+    log("Chưa kết nối máy in.");
+    return;
+  }
+
+  printButton.disabled = true;
+
+  try {
+
+    const noiDung =
+      "\x1B\x40" +
+      "\nTEST PT-210\n" +
+      "MTP-2 BLE PRINT OK\n" +
+      "--------------------\n\n\n";
+
+    const bytes =
+    new TextEncoder().encode(noiDung);
+
+    const kichThuocGoi = 100;
+
+    for (
+      let i = 0;
+      i < bytes.length;
+      i += kichThuocGoi
+    ) {
+
+      const goi =
+      bytes.slice(i, i + kichThuocGoi);
+
+      if (
+        printCharacteristic.writeValueWithoutResponse
+      ) {
+
+        await printCharacteristic
+        .writeValueWithoutResponse(goi);
+
+      } else {
+
+        await printCharacteristic
+        .writeValue(goi);
+
+      }
+
+      await new Promise(function(resolve) {
+        setTimeout(resolve, 50);
+      });
+
+    }
+
+    log("Đã gửi lệnh in. Hãy kiểm tra giấy.");
+
+  } catch(error) {
+
+    log(
+      "LỖI IN: " +
+      error.name + " - " + error.message
+    );
+
+  } finally {
+
+    printButton.disabled = false;
+
+  }
+
+});
+
+document.getElementById("disconnect")
+.addEventListener("click", function() {
+
+  if (
+    printer &&
+    printer.gatt &&
+    printer.gatt.connected
+  ) {
+    printer.gatt.disconnect();
+  }
+
+});
+
+</script>
+
+</body>
+</html>
