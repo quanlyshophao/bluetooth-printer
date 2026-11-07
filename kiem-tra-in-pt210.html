@@ -53,6 +53,10 @@ NGẮT KẾT NỐI
 4. KIỂM TRA BITMAP ĐEN TRẮNG
 </button>
 
+  <button id="inThuBitmap">
+5. IN THỬ ẢNH BITMAP
+</button>
+
 <div id="preview"
 style="display:none; margin:15px 0; border:1px solid #999; padding:10px;">
   <p>HÌNH ẢNH TEM XEM TRƯỚC:</p>
@@ -267,6 +271,57 @@ document.getElementById("kiemTraBitmap")
   };
 
 }
+  function taoLenhInBitmap(bitmap, chieuCaoDai = 24) {
+
+  const cacGoi = [];
+
+  const chieuRongByte = bitmap.bytesPerRow;
+
+  for (
+    let y = 0;
+    y < bitmap.height;
+    y += chieuCaoDai
+  ) {
+
+    const caoDai = Math.min(
+      chieuCaoDai,
+      bitmap.height - y
+    );
+
+    const batDau = y * chieuRongByte;
+
+    const ketThuc =
+      (y + caoDai) * chieuRongByte;
+
+    const duLieu = bitmap.data.slice(
+      batDau,
+      ketThuc
+    );
+
+    const lenh = new Uint8Array(
+      8 + duLieu.length
+    );
+
+    lenh.set([
+      0x1D,
+      0x76,
+      0x30,
+      0x00,
+      chieuRongByte & 0xFF,
+      (chieuRongByte >> 8) & 0xFF,
+      caoDai & 0xFF,
+      (caoDai >> 8) & 0xFF
+    ], 0);
+
+    lenh.set(duLieu, 8);
+
+    cacGoi.push(lenh);
+
+  }
+
+  return cacGoi;
+
+}
 const printButton =
 document.getElementById("print");
 
@@ -431,6 +486,120 @@ document.getElementById("disconnect")
     printer.gatt.connected
   ) {
     printer.gatt.disconnect();
+  }
+
+});
+
+  document.getElementById("inThuBitmap")
+.addEventListener("click", async function() {
+
+  if (
+    !printer ||
+    !printer.gatt.connected ||
+    !printCharacteristic
+  ) {
+    log("Chưa kết nối máy in.");
+    return;
+  }
+
+  const canvas =
+    document.getElementById("temCanvas");
+
+  if (!canvas.width) {
+    log("Bạn cần tạo ảnh tem trước.");
+    return;
+  }
+
+  const nut =
+    document.getElementById("inThuBitmap");
+
+  nut.disabled = true;
+
+  try {
+
+    const bitmap =
+      taoBitmapDenTrang(canvas);
+
+    const cacGoi =
+      taoLenhInBitmap(bitmap, 24);
+
+    log("Bắt đầu gửi ảnh bitmap...");
+
+    // Khởi tạo máy in
+    const khoiTao = new Uint8Array([
+      0x1B, 0x40
+    ]);
+
+    await printCharacteristic
+      .writeValue(khoiTao);
+
+    await new Promise(function(resolve) {
+      setTimeout(resolve, 100);
+    });
+
+    for (
+      let g = 0;
+      g < cacGoi.length;
+      g++
+    ) {
+
+      const goi = cacGoi[g];
+
+      for (
+        let i = 0;
+        i < goi.length;
+        i += 100
+      ) {
+
+        const phan = goi.slice(
+          i,
+          i + 100
+        );
+
+        if (
+          printCharacteristic.writeValueWithoutResponse
+        ) {
+
+          await printCharacteristic
+            .writeValueWithoutResponse(phan);
+
+        } else {
+
+          await printCharacteristic
+            .writeValue(phan);
+
+        }
+
+        await new Promise(function(resolve) {
+          setTimeout(resolve, 50);
+        });
+
+      }
+
+      log(
+        "Đã gửi dải " +
+        (g + 1) + "/" + cacGoi.length
+      );
+
+      await new Promise(function(resolve) {
+        setTimeout(resolve, 100);
+      });
+
+    }
+
+    log("Đã gửi toàn bộ ảnh bitmap.");
+
+  } catch(error) {
+
+    log(
+      "LỖI IN BITMAP: " +
+      error.name + " - " + error.message
+    );
+
+  } finally {
+
+    nut.disabled = false;
+
   }
 
 });
