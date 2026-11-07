@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kiểm tra Bluetooth GOOJPRT PT-210</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 620px; margin: 24px auto; padding: 0 16px; line-height: 1.5; }
+    h2 { font-size: 22px; }
+    button { width: 100%; padding: 15px; margin: 8px 0; font-size: 17px; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f2f2f2; padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Kiểm tra kết nối Bluetooth PT-210</h2>
+  <p>Trang này chỉ dùng để thử Chrome có thể tìm và kết nối máy in MTP-2 bằng Web Bluetooth hay không. Không truy cập Google Sheets và không ảnh hưởng trang Quản lý shop Hảo.</p>
+  <button id="connect">TÌM VÀ KẾT NỐI MTP-2</button>
+  <button id="disconnect" disabled>NGẮT KẾT NỐI</button>
+  <pre id="status">Đang kiểm tra môi trường...</pre>
+<script>
+  const SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
+  const CHARACTERISTIC_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
+  const statusBox = document.getElementById('status');
+  const connectButton = document.getElementById('connect');
+  const disconnectButton = document.getElementById('disconnect');
+  let printer = null;
+
+  function log(message) {
+    statusBox.textContent += '\n' + message;
+  }
+
+  statusBox.textContent =
+    'Bluetooth API: ' + !!navigator.bluetooth +
+    '\nHTTPS / secure context: ' + window.isSecureContext +
+    '\nTrang top-level: ' + (window.top === window.self) +
+    '\nTrình duyệt: ' + navigator.userAgent;
+
+  connectButton.addEventListener('click', async () => {
+    if (!navigator.bluetooth) {
+      log('LỖI: Trình duyệt không hỗ trợ Web Bluetooth.');
+      return;
+    }
+    try {
+      log('Đang mở cửa sổ chọn thiết bị...');
+      printer = await navigator.bluetooth.requestDevice({
+        filters: [{ services: [SERVICE_UUID] }],
+        optionalServices: [SERVICE_UUID]
+      });
+      log('Đã chọn thiết bị: ' + printer.name);
+      printer.addEventListener('gattserverdisconnected', () => {
+        log('Thiết bị đã ngắt kết nối.');
+        disconnectButton.disabled = true;
+      });
+      log('Đang kết nối GATT...');
+      const server = await printer.gatt.connect();
+      log('ĐÃ KẾT NỐI GATT thành công.');
+      log('Đang kiểm tra service và characteristic...');
+      const service = await server.getPrimaryService(SERVICE_UUID);
+      const characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+      log('ĐÃ TÌM THẤY characteristic in: ' + characteristic.uuid);
+      log('KẾT QUẢ: Chrome đã kết nối được máy in qua Web Bluetooth.');
+      disconnectButton.disabled = false;
+    } catch (error) {
+      log('LỖI: ' + error.name + ' — ' + error.message);
+      console.error(error);
+    }
+  });
+
+  disconnectButton.addEventListener('click', () => {
+    if (printer && printer.gatt && printer.gatt.connected) printer.gatt.disconnect();
+    disconnectButton.disabled = true;
+    log('Đã yêu cầu ngắt kết nối.');
+  });
+</script>
+</body>
+</html>
