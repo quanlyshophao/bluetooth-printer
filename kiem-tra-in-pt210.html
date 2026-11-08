@@ -604,6 +604,24 @@ document.getElementById("disconnect")
 
 });
 
+  // KIỂM TRA CẦU NỐI VỚI WEB APP SHOP HẢO
+if (window.opener) {
+
+  window.opener.postMessage(
+    {
+      type: "SHOPHAO_PRINTER_READY"
+    },
+    "https://script.google.com"
+  );
+
+  log("Đã tìm thấy cửa sổ Web App Shop Hảo.");
+
+} else {
+
+  log("Chưa tìm thấy cửa sổ Web App mở trang in.");
+
+}
+
 </script>
 
 </body>
