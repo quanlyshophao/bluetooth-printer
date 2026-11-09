@@ -585,6 +585,87 @@ async function xuLyLenhInBluetooth(ketQuaNhan, maThietBi) {
 
   return thanhCong;
 }
+
+  // ==========================================================
+// TỰ ĐỘNG KIỂM TRA HÀNG ĐỢI IN
+// ==========================================================
+
+let boDemKiemTraHangDoi = null;
+let dangXuLyLenhIn = false;
+
+async function kiemTraHangDoiInBluetooth() {
+
+  if (dangXuLyLenhIn) return;
+
+  if (
+    !printer ||
+    !printer.gatt.connected ||
+    !printCharacteristic
+  ) {
+    return;
+  }
+
+  dangXuLyLenhIn = true;
+
+  try {
+
+    const maThietBi = printer.name || "PT-210";
+
+    const ketQuaNhan =
+      await nhanLenhInBluetooth(maThietBi);
+
+    if (ketQuaNhan.coLenh) {
+
+      log("Đã nhận lệnh in: " + ketQuaNhan.maLenh);
+
+      await xuLyLenhInBluetooth(
+        ketQuaNhan,
+        maThietBi
+      );
+
+    }
+
+  } catch (error) {
+
+    log(
+      "LỖI KIỂM TRA HÀNG ĐỢI: " +
+      error.message
+    );
+
+  } finally {
+
+    dangXuLyLenhIn = false;
+
+  }
+
+}
+
+function batDauKiemTraHangDoiInBluetooth() {
+
+  if (boDemKiemTraHangDoi !== null) return;
+
+  boDemKiemTraHangDoi = setInterval(
+    kiemTraHangDoiInBluetooth,
+    3000
+  );
+
+  log("Đã bật kiểm tra hàng đợi in.");
+
+}
+
+function dungKiemTraHangDoiInBluetooth() {
+
+  if (boDemKiemTraHangDoi !== null) {
+
+    clearInterval(boDemKiemTraHangDoi);
+
+    boDemKiemTraHangDoi = null;
+
+    log("Đã dừng kiểm tra hàng đợi in.");
+
+  }
+
+}
   
   // ==========================================================
 // IN MỘT ẢNH TEM RI QUA BLUETOOTH
