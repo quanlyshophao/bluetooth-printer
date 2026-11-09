@@ -623,6 +623,32 @@ if (window.opener && !window.opener.closed) {
   log("Không tìm thấy cửa sổ hoặc địa chỉ Web App.");
 
 }
+
+// KIỂM TRA GITHUB ĐỌC ĐƯỢC DỮ LIỆU TỪ APPS SCRIPT
+(function() {
+
+  const url =
+    "https://script.google.com/macros/s/AKfycbwKe_aIRFig93ULwmGsYYaehBZSlhVSN-UGVKfRv3K2Wnh1ydAp7fQx1kS_DxDNX5L-Vg/exec?bridgeTest=1&callback=nhanTinHieu";
+
+  window.nhanTinHieu = function(ketQua) {
+
+    if (ketQua && ketQua.ok === true) {
+      log("ĐÃ ĐỌC ĐƯỢC DỮ LIỆU TỪ APPS SCRIPT.");
+    } else {
+      log("ĐỌC DỮ LIỆU TỪ APPS SCRIPT THẤT BẠI.");
+    }
+
+  };
+
+  const script = document.createElement("script");
+  script.src = url;
+  script.onerror = function() {
+    log("KHÔNG ĐỌC ĐƯỢC DỮ LIỆU TỪ APPS SCRIPT.");
+  };
+
+  document.head.appendChild(script);
+
+})();
   
   // NHẬN LỆNH TỪ WEB APP SHOP HẢO
 window.addEventListener("message", function(event) {
