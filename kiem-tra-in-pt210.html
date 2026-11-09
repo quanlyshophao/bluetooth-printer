@@ -378,6 +378,79 @@ function taoCanvasTemBluetooth(item) {
 }
 
   // ==========================================================
+// GIAO TIẾP GIỮA GITHUB VÀ APPS SCRIPT
+// ==========================================================
+
+const APPS_SCRIPT_BLUETOOTH_URL =
+"https://script.google.com/macros/s/AKfycbwKe_aIRFig93ULwmGsYYaehBZSlhVSN-UGVKfRv3K2Wnh1ydAp7fQx1kS_DxDNX5L-Vg/exec";
+
+let demCallbackBluetooth = 0;
+
+function goiAppsScriptBluetooth(thamSo) {
+
+  return new Promise(function(resolve, reject) {
+
+    const callbackName =
+      "nhanPhanHoiBluetooth_" +
+      Date.now() + "_" +
+      (++demCallbackBluetooth);
+
+    const script = document.createElement("script");
+
+    let daHoanTat = false;
+
+    const timeout = setTimeout(function() {
+      ketThucLoi(
+        new Error("Apps Script không phản hồi sau 15 giây.")
+      );
+    }, 15000);
+
+    function donDep() {
+      clearTimeout(timeout);
+      delete window[callbackName];
+      script.remove();
+    }
+
+    function ketThucLoi(error) {
+      if (daHoanTat) return;
+      daHoanTat = true;
+      donDep();
+      reject(error);
+    }
+
+    window[callbackName] = function(ketQua) {
+      if (daHoanTat) return;
+      daHoanTat = true;
+      donDep();
+      resolve(ketQua);
+    };
+
+    const params = new URLSearchParams();
+
+    Object.keys(thamSo).forEach(function(key) {
+      params.set(key, thamSo[key]);
+    });
+
+    params.set("callback", callbackName);
+
+    script.async = true;
+
+    script.src =
+      APPS_SCRIPT_BLUETOOTH_URL +
+      "?" + params.toString();
+
+    script.onerror = function() {
+      ketThucLoi(
+        new Error("Không kết nối được với Apps Script.")
+      );
+    };
+
+    document.head.appendChild(script);
+
+  });
+}
+
+  // ==========================================================
 // IN MỘT ẢNH TEM RI QUA BLUETOOTH
 // ==========================================================
 
