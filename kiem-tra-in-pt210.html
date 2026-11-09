@@ -649,6 +649,31 @@ if (window.opener && !window.opener.closed) {
   document.head.appendChild(script);
 
 })();
+
+  // KIỂM TRA GỬI TÍN HIỆU TỪ GITHUB VỀ APPS SCRIPT
+(function() {
+  const url =
+    "https://script.google.com/macros/s/AKfycbwKe_aIRFig93ULwmGsYYaehBZSlhVSN-UGVKfRv3K2Wnh1ydAp7fQx1kS_DxDNX5L-Vg/exec?bridgeSendTest=1&callback=nhanPhanHoi";
+
+  window.nhanPhanHoi = function(ketQua) {
+    if (
+      ketQua &&
+      ketQua.ok === true &&
+      ketQua.message === "GITHUB_GUI_TIN_HIEU_THANH_CONG"
+    ) {
+      log("APPS SCRIPT ĐÃ NHẬN ĐƯỢC TÍN HIỆU TỪ GITHUB.");
+    } else {
+      log("GỬI TÍN HIỆU TỪ GITHUB THẤT BẠI.");
+    }
+  };
+
+  const script = document.createElement("script");
+  script.src = url;
+  script.onerror = function() {
+    log("KHÔNG GỬI ĐƯỢC TÍN HIỆU ĐẾN APPS SCRIPT.");
+  };
+  document.head.appendChild(script);
+})();
   
   // NHẬN LỆNH TỪ WEB APP SHOP HẢO
 window.addEventListener("message", function(event) {
