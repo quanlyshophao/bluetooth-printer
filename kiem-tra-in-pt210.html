@@ -621,6 +621,33 @@ if (window.opener) {
   log("Chưa tìm thấy cửa sổ Web App mở trang in.");
 
 }
+  // NHẬN LỆNH TỪ WEB APP SHOP HẢO
+window.addEventListener("message", function(event) {
+
+  if (
+    !event.origin.endsWith(".googleusercontent.com") &&
+    event.origin !== "https://script.google.com"
+  ) {
+    return;
+  }
+
+  if (
+    event.data &&
+    event.data.type === "SHOPHAO_TEST_FROM_WEBAPP"
+  ) {
+
+    log("Đã nhận tín hiệu thử từ Web App Shop Hảo.");
+
+    event.source.postMessage(
+      {
+        type: "SHOPHAO_TEST_ACK"
+      },
+      event.origin
+    );
+
+  }
+
+});
 
 </script>
 
