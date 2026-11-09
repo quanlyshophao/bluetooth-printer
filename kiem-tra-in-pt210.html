@@ -759,6 +759,7 @@ document.getElementById("connect")
     printer.addEventListener(
       "gattserverdisconnected",
       function() {
+        dungKiemTraHangDoiInBluetooth();
         printCharacteristic = null;
         printButton.disabled = true;
         disconnectButton.disabled = true;
