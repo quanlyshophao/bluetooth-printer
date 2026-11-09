@@ -471,6 +471,120 @@ async function nhanLenhInBluetooth(maThietBi) {
 
   return ketQua;
 }
+
+  // ==========================================================
+// XỬ LÝ VÀ IN TOÀN BỘ TEM CỦA MỘT LỆNH RI
+// ==========================================================
+
+async function xuLyLenhInBluetooth(ketQuaNhan, maThietBi) {
+
+  if (
+    !ketQuaNhan ||
+    ketQuaNhan.ok !== true ||
+    ketQuaNhan.coLenh !== true
+  ) {
+    throw new Error("Không có lệnh in hợp lệ.");
+  }
+
+  const maLenh = ketQuaNhan.maLenh;
+  const duLieuIn = ketQuaNhan.duLieuIn;
+
+  let thanhCong = false;
+  let noiDungKetQua = "";
+
+  try {
+
+    if (
+      !duLieuIn ||
+      !Array.isArray(duLieuIn.sanPhamTrongRi) ||
+      duLieuIn.sanPhamTrongRi.length === 0
+    ) {
+      throw new Error("Lệnh in không có danh sách sản phẩm.");
+    }
+
+    if (
+      !printer ||
+      !printer.gatt.connected ||
+      !printCharacteristic
+    ) {
+      throw new Error("Máy in chưa kết nối.");
+    }
+
+    let tongTemDaIn = 0;
+
+    for (
+      let i = 0;
+      i < duLieuIn.sanPhamTrongRi.length;
+      i++
+    ) {
+
+      const item = duLieuIn.sanPhamTrongRi[i];
+
+      const soLuong = Number(item.soLuong || 0);
+
+      if (
+        !Number.isInteger(soLuong) ||
+        soLuong < 1
+      ) {
+        throw new Error(
+          "Số lượng tem không hợp lệ tại sản phẩm " +
+          (i + 1)
+        );
+      }
+
+      for (let j = 0; j < soLuong; j++) {
+
+        const canvas = taoCanvasTemBluetooth(item);
+
+        await inCanvasTemBluetooth(canvas);
+
+        tongTemDaIn++;
+
+        log(
+          "Đã in tem " + tongTemDaIn +
+          " - " + String(item.maSP || "")
+        );
+      }
+    }
+
+    thanhCong = true;
+
+    noiDungKetQua =
+      "Đã in thành công " + tongTemDaIn + " tem.";
+
+  } catch (error) {
+
+    noiDungKetQua = String(
+      error.message || error
+    );
+
+    log("LỖI XỬ LÝ LỆNH IN: " + noiDungKetQua);
+
+  }
+
+  const phanHoi = await goiAppsScriptBluetooth({
+    bridgeAction: "traKetQua",
+    maLenh: maLenh,
+    maThietBi: maThietBi,
+    thanhCong: thanhCong ? "1" : "0",
+    ketQua: noiDungKetQua
+  });
+
+  if (!phanHoi || phanHoi.ok !== true) {
+    throw new Error(
+      "Không xác nhận được kết quả với Apps Script. " +
+      "Phản hồi: " + JSON.stringify(phanHoi)
+    );
+  }
+
+  log(
+    thanhCong
+      ? "Apps Script đã xác nhận in thành công."
+      : "Apps Script đã ghi nhận lệnh in thất bại."
+  );
+
+  return thanhCong;
+}
   
   // ==========================================================
 // IN MỘT ẢNH TEM RI QUA BLUETOOTH
