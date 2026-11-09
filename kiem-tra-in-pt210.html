@@ -607,7 +607,7 @@ document.getElementById("disconnect")
   // KIỂM TRA CẦU NỐI VỚI WEB APP SHOP HẢO
 if (window.opener && !window.opener.closed) {
 
-  const webAppOrigin = new URL(document.referrer).origin;
+  
 
   window.opener.postMessage(
     {
