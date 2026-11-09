@@ -376,6 +376,68 @@ function taoCanvasTemBluetooth(item) {
   return cacGoi;
 
 }
+
+  // ==========================================================
+// IN MỘT ẢNH TEM RI QUA BLUETOOTH
+// ==========================================================
+
+async function inCanvasTemBluetooth(canvas) {
+
+  if (
+    !printer ||
+    !printer.gatt.connected ||
+    !printCharacteristic
+  ) {
+    throw new Error("Máy in chưa kết nối.");
+  }
+
+  if (!canvas || !canvas.width || !canvas.height) {
+    throw new Error("Ảnh tem không hợp lệ.");
+  }
+
+  const bitmap = taoBitmapDenTrang(canvas);
+
+  const cacGoi = taoLenhInBitmap(bitmap, 24);
+
+  // Khởi tạo máy in.
+  const khoiTao = new Uint8Array([
+    0x1B, 0x40
+  ]);
+
+  await printCharacteristic.writeValue(khoiTao);
+
+  await new Promise(function(resolve) {
+    setTimeout(resolve, 100);
+  });
+
+  // Gửi từng dải bitmap.
+  for (let g = 0; g < cacGoi.length; g++) {
+
+    const goi = cacGoi[g];
+
+    for (let i = 0; i < goi.length; i += 100) {
+
+      const phan = goi.slice(i, i + 100);
+
+      if (printCharacteristic.writeValueWithoutResponse) {
+        await printCharacteristic.writeValueWithoutResponse(phan);
+      } else {
+        await printCharacteristic.writeValue(phan);
+      }
+
+      await new Promise(function(resolve) {
+        setTimeout(resolve, 50);
+      });
+    }
+
+    await new Promise(function(resolve) {
+      setTimeout(resolve, 100);
+    });
+  }
+
+  return true;
+}
+  
 const printButton =
 document.getElementById("print");
 
