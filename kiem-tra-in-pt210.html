@@ -450,6 +450,28 @@ function goiAppsScriptBluetooth(thamSo) {
   });
 }
 
+// ==========================================================
+// NHẬN MỘT LỆNH IN TỪ HÀNG ĐỢI APPS SCRIPT
+// ==========================================================
+
+async function nhanLenhInBluetooth(maThietBi) {
+
+  const ketQua = await goiAppsScriptBluetooth({
+    bridgeAction: "nhanLenh",
+    maThietBi: maThietBi
+  });
+
+  if (!ketQua || ketQua.ok !== true) {
+    throw new Error(
+      ketQua && ketQua.message
+        ? ketQua.message
+        : "Không nhận được phản hồi hợp lệ từ Apps Script."
+    );
+  }
+
+  return ketQua;
+}
+  
   // ==========================================================
 // IN MỘT ẢNH TEM RI QUA BLUETOOTH
 // ==========================================================
