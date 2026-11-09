@@ -198,6 +198,60 @@ document.getElementById("kiemTraBitmap")
   log("Số pixel đen: " + soPixelDen);
 
 });
+
+  // ==========================================================
+// TẠO ẢNH TEM RI 384 × 120 PIXEL
+// ==========================================================
+
+function dinhDangTienBluetooth(value) {
+  const so = Number(value || 0);
+
+  return so.toLocaleString("vi-VN") + " đ";
+}
+
+function taoCanvasTemBluetooth(item) {
+  const canvas = document.createElement("canvas");
+
+  canvas.width = 384;
+  canvas.height = 120;
+
+  const ctx = canvas.getContext("2d");
+
+  // Nền trắng.
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Chữ màu đen, căn giữa.
+  ctx.fillStyle = "#000000";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+
+  // Dòng 1: Mã sản phẩm.
+  ctx.font = "bold 28px Arial";
+  ctx.fillText(
+    String(item.maSP || ""),
+    canvas.width / 2,
+    8
+  );
+
+  // Dòng 2: Size.
+  ctx.font = "24px Arial";
+  ctx.fillText(
+    String(item.size || ""),
+    canvas.width / 2,
+    44
+  );
+
+  // Dòng 3: Giá bán.
+  ctx.font = "26px Arial";
+  ctx.fillText(
+    dinhDangTienBluetooth(item.giaBan),
+    canvas.width / 2,
+    78
+  );
+
+  return canvas;
+}
   
   function taoBitmapDenTrang(canvas) {
 
