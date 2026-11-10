@@ -1014,7 +1014,7 @@ document.getElementById("disconnect")
 
   // KIỂM TRA CẦU NỐI VỚI WEB APP SHOP HẢO
 if (window.opener && !window.opener.closed) {
-
+log("KIỂM TRA: window.opener vẫn tồn tại.");
   
 
   window.opener.postMessage(
@@ -1027,6 +1027,8 @@ if (window.opener && !window.opener.closed) {
   log("Đã gửi tín hiệu đến Web App Shop Hảo.");
 
 } else {
+
+  log("KIỂM TRA: window.opener không tồn tại.");
 
   log("Không tìm thấy cửa sổ hoặc địa chỉ Web App.");
 
