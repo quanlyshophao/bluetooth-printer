@@ -212,6 +212,7 @@ function dinhDangTienBluetooth(value) {
 function taoCanvasTemBluetooth(item) {
   const canvas = document.createElement("canvas");
 
+  // Một tem: 48 × 30 mm tại 203 DPI.
   canvas.width = 384;
   canvas.height = 240;
 
@@ -224,34 +225,38 @@ function taoCanvasTemBluetooth(item) {
   // Chữ màu đen, căn giữa.
   ctx.fillStyle = "#000000";
   ctx.textAlign = "center";
-  ctx.textBaseline = "top";
+  ctx.textBaseline = "middle";
+
+  // Vùng nội dung 28 mm, chừa 1 mm mỗi đầu.
+  // Tâm vùng nội dung: y = 120 pixel.
 
   // Dòng 1: Mã sản phẩm.
-  ctx.font = "bold 28px Arial";
+  ctx.font = "bold 30px Arial";
   ctx.fillText(
     String(item.maSP || ""),
-    canvas.width / 2,
-    42
+    192,
+    70
   );
 
   // Dòng 2: Size.
-  ctx.font = "24px Arial";
+  ctx.font = "26px Arial";
   ctx.fillText(
     String(item.size || ""),
-    canvas.width / 2,
-    96
+    192,
+    120
   );
 
   // Dòng 3: Giá bán.
-  ctx.font = "26px Arial";
+  ctx.font = "28px Arial";
   ctx.fillText(
     dinhDangTienBluetooth(item.giaBan),
-    canvas.width / 2,
-    150
+    192,
+    170
   );
 
   return canvas;
-}  
+}
+
   function taoBitmapDenTrang(canvas) {
 
   const ctx = canvas.getContext("2d");
