@@ -213,7 +213,7 @@ function taoCanvasTemBluetooth(item) {
   const canvas = document.createElement("canvas");
 
   canvas.width = 384;
-  canvas.height = 120;
+  canvas.height = 240;
 
   const ctx = canvas.getContext("2d");
 
@@ -231,7 +231,7 @@ function taoCanvasTemBluetooth(item) {
   ctx.fillText(
     String(item.maSP || ""),
     canvas.width / 2,
-    8
+    42
   );
 
   // Dòng 2: Size.
@@ -239,7 +239,7 @@ function taoCanvasTemBluetooth(item) {
   ctx.fillText(
     String(item.size || ""),
     canvas.width / 2,
-    44
+    96
   );
 
   // Dòng 3: Giá bán.
@@ -247,12 +247,11 @@ function taoCanvasTemBluetooth(item) {
   ctx.fillText(
     dinhDangTienBluetooth(item.giaBan),
     canvas.width / 2,
-    78
+    150
   );
 
   return canvas;
-}
-  
+}  
   function taoBitmapDenTrang(canvas) {
 
   const ctx = canvas.getContext("2d");
